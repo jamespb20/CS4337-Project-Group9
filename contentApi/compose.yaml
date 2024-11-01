@@ -2,9 +2,28 @@ services:
   mysql:
     image: 'mysql:latest'
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
-      - 'MYSQL_PASSWORD=secret'
+      - 'MYSQL_DATABASE=contentapi'
       - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      - 'MYSQL_PASSWORD=secret'
+      - 'MYSQL_USER=user'
     ports:
-      - '3306'
+      - '3306:3306'
+    volumes:
+      - './src/main/resources:/docker-entrypoint-initdb.d'
+    networks:
+      - contentapi-network
+
+  contentapi:
+    build: .
+    image: 'contentapi:latest'
+    container_name: 'contentapi'
+    depends_on:
+      - mysql
+    networks:
+      - contentapi-network
+    ports:
+      - '8080:8080'
+
+networks:
+  contentapi-network:
+    driver: bridge
